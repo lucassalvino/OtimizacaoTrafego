@@ -1,0 +1,173 @@
+﻿@{
+    ViewData["Title"] = "Simulação de veículos";
+}
+<script src="~/js/Go/go.js"></script>
+<script>
+    function init() {
+      if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
+      var $ = go.GraphObject.make;  // for conciseness in defining templates
+
+      myDiagram =
+        $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
+          {
+            // have mouse wheel events zoom in and out instead of scroll up and down
+            "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+            // enable undo & redo
+            "undoManager.isEnabled": true
+          });
+      // define the Node template
+      myDiagram.nodeTemplate =
+        $(go.Node, "Auto",
+          new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+          // define the node's outer shape, which will surround the TextBlock
+          $(go.Shape, "RoundedRectangle",
+            {
+              parameter1: 20,  // the corner has a large radius
+              fill: $(go.Brush, "Linear", { 0: "rgb(254, 201, 0)", 1: "rgb(254, 162, 0)" }),
+              stroke: null,
+              portId: "",  // this Shape is the Node's port, not the whole Node
+              fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+              toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
+              cursor: "pointer"
+            }),
+          $(go.TextBlock,
+            {
+              font: "bold 11pt helvetica, bold arial, sans-serif",
+              editable: false  // editing the text automatically updates the model data
+            },
+            new go.Binding("text").makeTwoWay())
+        );
+
+      // replace the default Link template in the linkTemplateMap
+      myDiagram.linkTemplate =
+        $(go.Link,  // the whole link panel
+          {
+            curve: go.Link.Bezier, adjusting: go.Link.Stretch,
+            reshapable: true, relinkableFrom: true, relinkableTo: true,
+            toShortLength: 3
+          },
+          new go.Binding("points").makeTwoWay(),
+          new go.Binding("curviness"),
+          $(go.Shape,  // the link shape
+            { strokeWidth: 1.5 }),
+          $(go.Shape,  // the arrowhead
+            { toArrow: "standard", stroke: null }),
+          $(go.Panel, "Auto",
+            $(go.Shape,  // the label background, which becomes transparent around the edges
+              {
+                fill: $(go.Brush, "Radial",
+                  { 0: "rgb(255, 255, 255)", 0.3: "rgb(255, 255, 255)", 1: "rgb(255, 255, 255)" }),
+                stroke: null
+              }),
+            $(go.TextBlock, "transition",  // the label text
+              {
+                textAlign: "center",
+                font: "9pt helvetica, arial, sans-serif",
+                margin: 4,
+                editable: false  // enable in-place editing
+              },
+              // editing the text automatically updates the model data
+              new go.Binding("text").makeTwoWay())
+          )
+        );
+
+      // read in the JSON data from the "mySavedModel" element
+      load();
+    }
+
+    // Show the diagram's model in JSON format
+    function save() {
+      document.getElementById("mySavedModel").value = myDiagram.model.toJson();
+    }
+    function load() {
+      myDiagram.model = go.Model.fromJson(document.getElementById("mySavedModel").value);
+    }
+</script>
+
+
+
+
+
+
+
+
+<div class="text-center">
+    <h1 class="display-4">Simulação</h1>
+</div>
+<div class="d-flex d-flex flex-column">
+    <div class="d-flex">
+        <span class="font-weight-bold"></span>
+    </div>
+</div>
+<br />
+<div class="d-flex justify-content-end align-content-end">
+    <div class="d-flex flex-column">
+        <label for="quantidade-iteracoes">Qtd. Iterações</label>
+        <input type="number" id="quantidade-iteracoes" value="600" placeholder="qtd iterações" />
+    </div>
+    &nbsp;&nbsp;&nbsp;
+    <div class="d-flex flex-column">
+        <label for="tipo-otimizacao">Otimização</label>
+        <select id="tipo-otimizacao" style="min-height:30px;">
+            <option value="0">Nenhuma</option>
+            <option value="1">Algoritmo Genético</option>
+        </select>
+    </div>
+    &nbsp;&nbsp;&nbsp;
+    <div class="d-flex align-content-end justify-content-center">
+        <button id="btn-iniciar"class="d-flex btn-primary">Iniciar Simulação</button> &nbsp;&nbsp;&nbsp;
+    </div>
+</div>
+
+<br />
+<div class="d-flex justify-content-lg-between">
+    <span>Representação do trecho da simulação:</span>
+    <a target="_blank" href="https://drive.google.com/open?id=10HwAbip0EvrQeEM7nkX27ZkpxcDibOcV&usp=sharing">Trecho no Google Maps</a>
+</div>
+
+<div id="myDiagramDiv" style="border: solid 1px black; width: 100%; height: 400px"></div>
+<span>Cada aresta possui: (d,v,vm): sendo Distância(m), número de vias e velocidade máxima(m/s)</span>
+<textarea class="d-none" id="mySavedModel" style="width:100%;height:300px">{ "class": "go.GraphLinksModel",
+  "nodeKeyProperty": "id",
+  "nodeDataArray": [
+    { "id": 0, "loc": "0 150", "text": "0" },
+    { "id": 1, "loc": "120 150", "text": "1" },
+    { "id": 2, "loc": "240 150", "text": "2" },
+    { "id": 3, "loc": "360 150", "text": "3" },
+    { "id": 4, "loc": "480 150", "text": "4*" },
+    { "id": 5, "loc": "600 150", "text": "5*" },
+    { "id": 6, "loc": "720 150", "text": "6" },
+    { "id": 7, "loc": "840 150", "text": "7*" }
+  ],
+  "linkDataArray": [
+    { "from": 0, "to": 1, "text": "(156,2,16)", "curviness": -20 },
+    { "from": 1, "to": 2, "text": "(237,2,16)", "curviness": -20 },
+    { "from": 2, "to": 3, "text": "(96,2,16)", "curviness": -20 },
+    { "from": 3, "to": 4, "text": "(100,2,16)", "curviness": -20 },
+    { "from": 4, "to": 5, "text": "(235,2,16)", "curviness": -20 },
+    { "from": 5, "to": 6, "text": "(184,2,16)", "curviness": -20 },
+    { "from": 6, "to": 7, "text": "(243,2,16)", "curviness": -20 },
+    { "from": 7, "to": 6, "text": "(243,2,16)", "curviness": -20 },
+    { "from": 6, "to": 5, "text": "(184,2,16)", "curviness": -20 },
+    { "from": 5, "to": 4, "text": "(235,2,16)", "curviness": -20 },
+    { "from": 4, "to": 2, "text": "(196,2,16)", "curviness": -40 },
+    { "from": 2, "to": 1, "text": "(237,2,16)", "curviness": -20 },
+    { "from": 1, "to": 0, "text": "(156,2,16)", "curviness": -20 }
+  ]
+}
+</textarea>
+<br/>
+<div class="d-flex flex-column" id="status-simulacao">
+</div>
+<script>
+    $(document).ready(function () {
+        init();
+        $("#btn-iniciar").on("click", function () {
+            //$('body').scrollTo('#status-simulacao');
+            $("#status-simulacao").append("<span>Carregando Mapa...</span>").delay(2000).queue(function (next) {
+                $(this).append("<span>Gerando veículos ...</span>");
+                next();
+            });
+        });
+    });
+</script>

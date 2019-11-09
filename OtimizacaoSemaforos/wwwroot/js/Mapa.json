@@ -1,0 +1,170 @@
+{
+  "Ruas": [
+    {
+      "VerticeOrigem": 0,
+      "VerticeDestino": 1,
+      "Distancia": 156,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    },
+    {
+      "VerticeOrigem": 1,
+      "VerticeDestino": 2,
+      "Distancia": 237,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    },
+    {
+      "VerticeOrigem": 2,
+      "VerticeDestino": 3,
+      "Distancia": 96,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    },
+    {
+      "VerticeOrigem": 3,
+      "VerticeDestino": 4,
+      "Distancia": 100,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    },
+    {
+      "VerticeOrigem": 4,
+      "VerticeDestino": 5,
+      "Distancia": 235,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    },
+    {
+      "VerticeOrigem": 5,
+      "VerticeDestino": 6,
+      "Distancia": 184,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    },
+    {
+      "VerticeOrigem": 6,
+      "VerticeDestino": 7,
+      "Distancia": 243,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    },
+    {
+      "VerticeOrigem": 7,
+      "VerticeDestino": 6,
+      "Distancia": 243,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    },
+    {
+      "VerticeOrigem": 6,
+      "VerticeDestino": 5,
+      "Distancia": 184,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    },
+    {
+      "VerticeOrigem": 5,
+      "VerticeDestino": 4,
+      "Distancia": 235,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    },
+    {
+      "VerticeOrigem": 4,
+      "VerticeDestino": 2,
+      "Distancia": 196,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    },
+    {
+      "VerticeOrigem": 2,
+      "VerticeDestino": 1,
+      "Distancia": 237,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    },
+    {
+      "VerticeOrigem": 1,
+      "VerticeDestino": 0,
+      "Distancia": 156,
+      "NumeroVias": 2,
+      "VelocidadeMaxima": 16
+    }
+  ],
+  "Semaforos": [
+    {
+      "VerticeOrigemOrigem": 3,
+      "VerticeDestinoOrigem": 4,
+      "VerticeOrigemDestino": 4,
+      "VerticeDestinoDestino": 5,
+      "TempoAberto": 60,
+      "TempoFechado": 60,
+      "TempoAmarelo": 1
+    },
+    {
+      "VerticeOrigemOrigem": 4,
+      "VerticeDestinoOrigem": 5,
+      "VerticeOrigemDestino": 5,
+      "VerticeDestinoDestino": 6,
+      "TempoAberto": 60,
+      "TempoFechado": 60,
+      "TempoAmarelo": 1
+    },
+    {
+      "VerticeOrigemOrigem": 6,
+      "VerticeDestinoOrigem": 7,
+      "VerticeOrigemDestino": 7,
+      "VerticeDestinoDestino": 7,
+      "TempoAberto": 60,
+      "TempoFechado": 60,
+      "TempoAmarelo": 1
+    }
+  ],
+  "TaxasGeracao": [
+    {
+      "Vertice": 0,
+      "Taxa": 30
+    },
+    {
+      "Vertice": 1,
+      "Taxa": 30
+    },
+    {
+      "Vertice": 2,
+      "Taxa": 30
+    },
+    {
+      "Vertice": 3,
+      "Taxa": 10
+    },
+    {
+      "Vertice": 4,
+      "Taxa": 30
+    },
+    {
+      "Vertice": 5,
+      "Taxa": 30
+    },
+    {
+      "Vertice": 6,
+      "Taxa": 30
+    },
+    {
+      "Vertice": 7,
+      "Taxa": 30
+    }
+  ],
+  "ComprimentosVeiculos": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "VelocidadeInicial": [
+    5,
+    10,
+    15,
+    18
+  ]
+}

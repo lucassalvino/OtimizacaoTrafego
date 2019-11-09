@@ -1,0 +1,37 @@
+﻿
+@{
+    ViewData["Title"] = "MapaSimulador";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+.body {
+    padding: 3rem;
+    font-size: 16px;
+}
+
+textarea {
+    width: 100%;
+    min-height: 30rem;
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 0.8rem;
+    line-height: 1.2;
+}
+</style>
+<div class="d-flex flex-column">
+    <div class="d-flex">
+        <h2>Mapa Simulador</h2>
+    </div>
+    <hr />
+    <div class="d-flex w-100">
+        <pre id="myTextarea" ></pre>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        jQuery.getJSON("/js/Mapa.json").done(function (data) {
+            var textedJson = JSON.stringify(data, null, 4);
+            $('#myTextarea').html(textedJson);
+        });
+    });
+</script>
