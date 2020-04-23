@@ -31,7 +31,7 @@ namespace Simulador.Util
         {
             if (ComprimentosPossiveis.Count <= 0 || VelocidadesPossiveis.Count <= 0)
                 throw new Exception("Sem comprimentos ou velocidades possiveis para selecao");
-            int[] caminho = Dijkstra.CalculaDjkstra(VerticeOrigem, grafo);
+            int[] caminho = Dijkstra.CalculaDjkstra(VerticeOrigem, grafo); // gera percurso que o veículo irá realizar
             Veiculo Retorno = new Veiculo()
             {
                 Comprimento = ComprimentosPossiveis[new Random().Next() % ComprimentosPossiveis.Count],

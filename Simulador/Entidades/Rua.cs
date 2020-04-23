@@ -103,6 +103,11 @@ namespace Simulador.Entidades
                         veiculo.Velocidade -= 1;
                     }
 
+                    #region tratalimitesVelocidade
+                    if (veiculo.Velocidade < 0) veiculo.Velocidade = 0;
+                    if (veiculo.Velocidade > VelocidadeMaxima) veiculo.Velocidade = VelocidadeMaxima;
+                    #endregion tratalimitesVelocidade
+
                     veiculo.LogVeiculo.VelocidadesTempo.Add(new LogVelocidadeVeiculo()
                     {
                         InstanteTempo = SegundoSimalcao,
