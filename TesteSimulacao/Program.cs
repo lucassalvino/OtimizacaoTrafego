@@ -24,6 +24,7 @@ namespace TesteSimulacao
 
                 Simulacao.QtdIteracoes = 1200;
                 Simulacao.ImprimirLogTela = true;
+                Simulacao.ImprimeLogOtimizacao = true;
                 Simulacao.IniciaSimulacao();
                 Simulacao.SalvaLogs();
             }

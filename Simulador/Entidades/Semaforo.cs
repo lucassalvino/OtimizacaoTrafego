@@ -11,6 +11,9 @@ namespace Simulador.Entidades
         public int TempoFechado { get; set; }
         public int TempoAmarelo { get; set; }
         public int TempoAtual { get; set; } = 0;
+        public int ProximoTempoAberto { get; set; }
+        public int ProximoTempoFechado { get; set; }
+        
         public EstadosSemaforo EstadoSemaforo { get; set; }
         public List<int> RuasOrigem { get; set; } = new List<int>();
         public List<int> RuasDestino { get; set; } = new List<int>();
@@ -33,8 +36,8 @@ namespace Simulador.Entidades
             if (tempoAberto <= 0 || tempoAmarelo <= 0 || tempoFechado <= 0)
                 throw new Exception("Os valores de tempo devem ser maior do que zero");
             Id = id;
-            TempoAberto = tempoAberto;
-            TempoFechado = tempoFechado;
+            ProximoTempoAberto = TempoAberto = tempoAberto;
+            ProximoTempoFechado =  TempoFechado = tempoFechado;
             TempoAmarelo = tempoAmarelo;
             EstadoSemaforo = Estado;
             RuasOrigem.Clear();
@@ -56,6 +59,7 @@ namespace Simulador.Entidades
                 case EstadosSemaforo.FECHADO:
                     if (TempoAtual >= TempoFechado)
                     {
+
                         TempoAtual = 0;
                         EstadoSemaforo = EstadosSemaforo.ABERTO;
                     }
@@ -63,6 +67,7 @@ namespace Simulador.Entidades
                 case EstadosSemaforo.AMARELO:
                     if (TempoAtual >= TempoAmarelo)
                     {
+
                         TempoAtual = 0;
                         EstadoSemaforo = EstadosSemaforo.FECHADO;
                     }

@@ -172,6 +172,7 @@ namespace Simulador
         }
 
         public bool ImprimirLogTela { get; set; }
+        public bool ImprimeLogOtimizacao { get; set; }
         #endregion Metodos
 
         private void CriaPopulacaoInicial(GeneticAlgorithm<string> AG, int numeroIndividuos, int numeroGenesIndividos)
@@ -295,30 +296,18 @@ namespace Simulador
 
         private void ProcessaSemaforos()
         {
+            if(SetOtimizacaoIAAG != null)
+            {
+                if (ImprimeLogOtimizacao)
+                    Console.WriteLine("Iniciando otimização");
+                SetOtimizacaoIAAG.Run();
+                var melhorSolucao = SetOtimizacaoIAAG.GetBestChromosome();
+                if (ImprimeLogOtimizacao)
+                    Console.WriteLine(JsonConvert.SerializeObject(melhorSolucao));
+            }
             foreach (var at in Semaforos)
             {
-                at.TempoAtual++;
-                if (at.EstadoSemaforo == Entidades.Enuns.EstadosSemaforo.ABERTO && at.TempoAtual >= at.TempoAberto)
-                {
-                    at.TempoAtual = 0;
-                    at.EstadoSemaforo = Entidades.Enuns.EstadosSemaforo.AMARELO;
-                }
-                else
-                {
-                    if (at.EstadoSemaforo == Entidades.Enuns.EstadosSemaforo.AMARELO && at.TempoAtual >= at.TempoAmarelo)
-                    {
-                        at.TempoAtual = 0;
-                        at.EstadoSemaforo = Entidades.Enuns.EstadosSemaforo.FECHADO;
-                    }
-                    else
-                    {
-                        if (at.EstadoSemaforo == Entidades.Enuns.EstadosSemaforo.FECHADO && at.TempoAtual >= at.TempoFechado)
-                        {
-                            at.TempoAtual = 0;
-                            at.EstadoSemaforo = Entidades.Enuns.EstadosSemaforo.ABERTO;
-                        }
-                    }
-                }
+                at.AtualizaStatusSemaforo(1);
             }
         }
 

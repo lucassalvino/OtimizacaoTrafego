@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\IA\AlgoritmoGenetico\AlgoritmoGenetico\GeneticAlgorithm.csproj" />
+    <ProjectReference Include="..\AlgoritmoGenetico\AlgoritmoGenetico\GeneticAlgorithm.csproj" />
     <ProjectReference Include="..\Grafo\BaseGrafo.csproj" />
   </ItemGroup>
 
