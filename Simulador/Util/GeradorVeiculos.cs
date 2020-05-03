@@ -3,7 +3,6 @@ using BaseGrafo.Algoritmos;
 using Simulador.Entidades;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Simulador.Util
 {
@@ -18,7 +17,7 @@ namespace Simulador.Util
         public void AdicionarComprimentoPossivel(int comprimento)
         {
             if (comprimento <= 0)
-                throw new Exception("O comprimento deo veículo não pode ser menor ou igual a zero");
+                throw new Exception("O comprimento do veículo não pode ser menor ou igual a zero");
             ComprimentosPossiveis.Add(comprimento);
         }
         public void AdicionarVelocidadePossivel(int velocidade)

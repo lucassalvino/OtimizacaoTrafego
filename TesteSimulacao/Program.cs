@@ -21,6 +21,7 @@ namespace TesteSimulacao
                 Simulacao.PastaLogsSemaforos = "C:/entrada/LogsSemaforos";
                 Simulacao.PastaLogVeiculos = "C:/entrada/LogsVeiculos";
                 Simulacao.PastaLogsVertices = "C:/entrada/LogsVertices";
+                Simulacao.PastaLogsGerais = "C:/entrada/Gerais";
 
                 Simulacao.QtdIteracoes = 1200;
                 Simulacao.ImprimirLogTela = true;

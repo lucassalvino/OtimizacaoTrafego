@@ -1,4 +1,5 @@
-﻿using Simulador.Entidades.Enuns;
+﻿using Simulador.AuxLogs;
+using Simulador.Entidades.Enuns;
 using System;
 using System.Collections.Generic;
 
@@ -13,10 +14,10 @@ namespace Simulador.Entidades
         public int TempoAtual { get; set; } = 0;
         public int ProximoTempoAberto { get; set; }
         public int ProximoTempoFechado { get; set; }
-        
         public EstadosSemaforo EstadoSemaforo { get; set; }
         public List<int> RuasOrigem { get; set; } = new List<int>();
         public List<int> RuasDestino { get; set; } = new List<int>();
+        public List<LogSemaforos> LogSemaforos { get; set; } = new List<LogSemaforos>();
         #endregion Propriedades
         #region Contrutor
         public Semaforo()
@@ -27,6 +28,7 @@ namespace Simulador.Entidades
             TempoAmarelo = -1;
             TempoAtual = 0;
             EstadoSemaforo = EstadosSemaforo.FECHADO;
+            LogSemaforos = new List<LogSemaforos>();
         }
         #endregion Contrutor
         #region Metodos
@@ -44,7 +46,7 @@ namespace Simulador.Entidades
             RuasDestino.Clear();
             TempoAtual = 0;
         }
-        public void AtualizaStatusSemaforo(int tempoDecorrido)
+        public void AtualizaStatusSemaforo(int tempoDecorrido, int instanteTempo)
         {
             TempoAtual += tempoDecorrido;
             switch (EstadoSemaforo)
@@ -59,17 +61,30 @@ namespace Simulador.Entidades
                 case EstadosSemaforo.FECHADO:
                     if (TempoAtual >= TempoFechado)
                     {
-
+                        TempoAberto = ProximoTempoAberto;
                         TempoAtual = 0;
                         EstadoSemaforo = EstadosSemaforo.ABERTO;
+                        
+                        LogSemaforos.Add(new LogSemaforos { 
+                            InstanteTempo = instanteTempo,
+                            TempoAberto = TempoAberto,
+                            TempoFechado = TempoFechado
+                        });
                     }
                     break;
                 case EstadosSemaforo.AMARELO:
                     if (TempoAtual >= TempoAmarelo)
                     {
-
+                        TempoFechado = ProximoTempoFechado;
                         TempoAtual = 0;
                         EstadoSemaforo = EstadosSemaforo.FECHADO;
+
+                        LogSemaforos.Add(new LogSemaforos
+                        {
+                            InstanteTempo = instanteTempo,
+                            TempoAberto = TempoAberto,
+                            TempoFechado = TempoFechado
+                        });
                     }
                     break;
             }

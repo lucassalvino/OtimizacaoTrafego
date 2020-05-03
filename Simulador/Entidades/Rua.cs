@@ -1,7 +1,6 @@
 ﻿using Simulador.AuxLogs;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace Simulador.Entidades
@@ -15,6 +14,17 @@ namespace Simulador.Entidades
         public int VelocidadeMaxima { get; set; }
         public List<int> EspacoOcupado { get; set; } = new List<int>();
         public List<Queue<Veiculo>> VeiculosNaRua { get; set; } = new List<Queue<Veiculo>>();
+        public List<LogMediaVelocidade> MediaVelocidadesPorInstante { get; set; } = new List<LogMediaVelocidade>();
+
+        public int NumeroVeiculosNaVia 
+        {
+            get
+            {
+                var retorno = 0;
+                VeiculosNaRua.ForEach(x => retorno += x.Count);
+                return retorno;
+            }
+        }
         #endregion Propriedades
 
         #region Construtores
@@ -71,10 +81,12 @@ namespace Simulador.Entidades
             return null;
         }
         #region Metodos
-        public void PocessaFilaVeiculos(int SegundoSimalcao, string FolderLogVeiculos, List<Semaforo> Semaforos, int margemErroViaLotada = 2)
+        public void PocessaFilaVeiculos(int SegundoSimalcao, List<Semaforo> Semaforos, int margemErroViaLotada = 2)
         {
             var semAt = Semaforos.Where(x => x.RuasOrigem.Contains(Id)).FirstOrDefault();
             bool Existesema = semAt != null;
+            float somatorioMeida = 0;
+            int qtdVeiculos = 0;
             for (int i = 0; i < NumeroFaixas; i++)
             {
                 Queue<Veiculo> novaFila = new Queue<Veiculo>();
@@ -82,6 +94,7 @@ namespace Simulador.Entidades
 
                 foreach (var veiculo in veiculos)
                 {
+                    qtdVeiculos++;
                     veiculo.PosicaoAtualNaVia += veiculo.Velocidade;
                     if (veiculo.PosicaoAtualNaVia <= Comprimento)
                     {
@@ -102,11 +115,11 @@ namespace Simulador.Entidades
                     {
                         veiculo.Velocidade -= 1;
                     }
-
                     #region tratalimitesVelocidade
-                    if (veiculo.Velocidade < 0) veiculo.Velocidade = 0;
-                    if (veiculo.Velocidade > VelocidadeMaxima) veiculo.Velocidade = VelocidadeMaxima;
+                    if (veiculo.Velocidade < 0) veiculo.Velocidade = 0; // evita velocidade negativa (para quando o veiculo já se encontra parado
+                    if (veiculo.Velocidade > VelocidadeMaxima) veiculo.Velocidade = VelocidadeMaxima; // se a velocidade final do veículo for superior a máxima da via, o veículo recebe a velocidade máxima da via
                     #endregion tratalimitesVelocidade
+                    somatorioMeida += veiculo.Velocidade;
 
                     veiculo.LogVeiculo.VelocidadesTempo.Add(new LogVelocidadeVeiculo()
                     {
@@ -119,19 +132,6 @@ namespace Simulador.Entidades
                         if (veiculo.VerticeAtual == veiculo.PercursoVeiculo.Last())
                         {
                             Veiculo car = RemoveVeiculo();
-                            if (!string.IsNullOrEmpty(FolderLogVeiculos))
-                            {
-                                List<string> logs = new List<string>();
-                                foreach (var item in car.LogVeiculo.VelocidadesTempo)
-                                {
-                                    logs.Add($"{item.InstanteTempo};{item.Velociadade}");
-                                }
-                                using (StreamWriter file = new StreamWriter($"{FolderLogVeiculos}/{car.Id}.csv"))
-                                {
-                                    file.Write(string.Join("\n", logs));
-                                    file.Close();
-                                }
-                            }
                         }
                         else
                         {
@@ -145,12 +145,18 @@ namespace Simulador.Entidades
                 }
                 VeiculosNaRua[i] = novaFila;
             }
+            MediaVelocidadesPorInstante.Add(new LogMediaVelocidade
+            {
+                InstanteTempo = SegundoSimalcao,
+                VelocidadeMedia = qtdVeiculos == 0? 0: (somatorioMeida / qtdVeiculos)
+            });
         }
         public float MediaOcupacaoVias()
         {
             return EspacoOcupado.Sum((x) => x) / NumeroFaixas;
         }
         #endregion Metodos
+
         #region MetodosPrivados
         public void PreparaRua()
         {

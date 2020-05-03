@@ -18,9 +18,7 @@ namespace Simulador
         public string PastaLogEstradas { get; set; }
         public string PastaLogsSemaforos { get; set; }
         public string PastaLogsVertices { get; set; }
-
-        int numeroIndividuos = 500;
-        int numeroGenesIndividos = 20;
+        public string PastaLogsGerais { get; set; }
         public GeneticAlgorithm<string> SetOtimizacaoIAAG { get; set; }
 
         #region Metodos
@@ -86,8 +84,16 @@ namespace Simulador
                     TempoAmarelo = item.TempoAmarelo,
                     TempoFechado = item.TempoFechado,
                     EstadoSemaforo = Entidades.Enuns.EstadosSemaforo.ABERTO,
+                    ProximoTempoAberto = item.TempoAberto,
+                    ProximoTempoFechado = item.TempoFechado,
                     TempoAtual = 0
                 };
+                auxSema.LogSemaforos.Add(new LogSemaforos { 
+                    InstanteTempo = 0,
+                    TempoAberto = item.TempoAberto,
+                    TempoFechado = item.TempoFechado
+                });
+
                 Rua RuaOrigem = GetRua(item.VerticeOrigemOrigem, item.VerticeDestinoOrigem);
                 Rua RuaDestino = GetRua(item.VerticeOrigemDestino, item.VerticeDestinoDestino);
                 if (item.VerticeOrigemDestino == item.VerticeDestinoDestino && RuaDestino == null)//Ultimo semáforo e sem rua depois do semáforo
@@ -118,46 +124,156 @@ namespace Simulador
                 ProcessaVeiculoSimulacao();
                 ProcessaSemaforos();
                 SegundoSimulacao++;
-                if(SegundoSimulacao%2 == 0)
-                {
-                    ExutaAvaliacaoIA();
-                }
+            }
+        }
+        private void SalvaLog(List<string> Log, string nomeArquivo)
+        {
+            using (StreamWriter file = new StreamWriter(nomeArquivo))
+            {
+                file.Write(string.Join("\n", Log));
+                file.Close();
             }
         }
 
-        private void ExutaAvaliacaoIA()
+        private void verificaPasta(string pasta)
         {
-            //otimização com AG
-            if (SetOtimizacaoIAAG != null)
+            if (!Directory.Exists(pasta))
             {
-                CriaPopulacaoInicial(SetOtimizacaoIAAG, numeroIndividuos, numeroGenesIndividos);
-                ExecutaAgAtualizaSemaforos();
+                var di = Directory.CreateDirectory(pasta);
+                if (!di.Exists)
+                    throw new Exception($"Não é possível escrever em [{pasta}]");
             }
         }
         public void SalvaLogs()
         {
+            // salva log veiculos
             if (!string.IsNullOrEmpty(PastaLogVeiculos))
             {
+                verificaPasta(PastaLogVeiculos);
+                Console.WriteLine("Salvando Logs veículos");
+                foreach (var veiculo in VeiculosSimulacao)
+                {
+                    List<string> logs = new List<string>();
+                    logs.Add($"Instante tempo;Velocidade veículo");
+                    foreach (var item in veiculo.LogVeiculo.VelocidadesTempo)
+                    {
+                        logs.Add($"{item.InstanteTempo};{item.Velociadade}");
+                    }
+                    SalvaLog(logs, $"{PastaLogVeiculos}/{veiculo.Id}.csv");
+                }
+                Console.WriteLine("Log veículos salvos");
+            }
+            // salva log gerais
+            if (!string.IsNullOrEmpty(PastaLogsGerais))
+            {
+                verificaPasta(PastaLogsGerais);
+                Console.WriteLine("Salvando logs gerais");
+                List<string> logs = new List<string>();
+                //Origem veiculos por vertice
+                int n = grafo.NumeroVertices;
+                int[] origem = new int[n];
+                int[] destinos = new int[n];
+                for(int i = 0; i<n; i++)
+                {
+                    origem[i] = 0;
+                    destinos[i] = 0;
+                }
+                VeiculosSimulacao.ForEach(x =>
+                {
+                    if(x.PercursoVeiculo.Count >= 0)
+                    {
+                        origem[x.PercursoVeiculo.First()] += 1;
+                        destinos[x.PercursoVeiculo.Last()] += 1;
+                    }
+                });
+                logs.Add("vertice; quantidade origem; quantidade destino");
+                for(int i = 0; i < n; i++)
+                {
+                    logs.Add($"{i};{origem[i]};{destinos[i]}");
+                }
+                SalvaLog(logs, $"{PastaLogsGerais}/OrigemDestinos.csv");
+
+                #region VelocidadeMediaVeiculos
+                Console.WriteLine("Gerando logs de velocidade média");
+                logs = new List<string>();
+                logs.Add("instante tempo; media velocidade");
+                for (int i = 0; i < QtdIteracoes; i++)
+                {
+                    var veiculosComVelocidadeSegundo = VeiculosSimulacao.Where(x => x.LogVeiculo.VelocidadesTempo.Where(y => y.InstanteTempo == i).Count()>0 && x.VerticeAtual != x.PercursoVeiculo.LastOrDefault()).ToList();
+                    var somatorio = veiculosComVelocidadeSegundo.Select(x => x.LogVeiculo.VelocidadesTempo.Where(y => y.InstanteTempo == i).ToList()).Sum(x => x.Sum(y => y.Velociadade));
+                    var media = (float)somatorio / veiculosComVelocidadeSegundo.Count();
+                    logs.Add($"{i};{media}");
+                }
+                SalvaLog(logs, $"{PastaLogsGerais}/MeidaVelocidadePorTempo.csv");
+                #endregion VelocidadeMediaVeiculos
+
+                #region VelocidadeMediaPorRua
+                Console.WriteLine("Gerando logs de velocidade média por rua por tempo");
+                verificaPasta($"{PastaLogsGerais}/MeidaVelocidadeRuas");
                 foreach(var rua in RuasSimulacao)
                 {
-                    for(int i = 0; i<rua.NumeroFaixas; i++)
+                    List<string> log = new List<string>();
+                    log.Add("Instante Tempo;Velocidade Média");
+                    foreach (var logInstante in rua.MediaVelocidadesPorInstante)
                     {
-                        List<Veiculo> veiculos = rua.VeiculosNaRua[i].ToList();
-                        foreach (var veiculo in veiculos)
-                        {
-                            List<string> logs = new List<string>();
-                            foreach(var item in veiculo.LogVeiculo.VelocidadesTempo)
-                            {
-                                logs.Add($"{item.InstanteTempo};{item.Velociadade}");
-                            }
-                            using (StreamWriter file = new StreamWriter($"{PastaLogVeiculos}/{veiculo.Id}.csv"))
-                            {
-                                file.Write(string.Join("\n", logs));
-                                file.Close();
-                            }
-                        }
+                        log.Add($"{logInstante.InstanteTempo}; {logInstante.VelocidadeMedia}");
                     }
+                    SalvaLog(log, $"{PastaLogsGerais}/MeidaVelocidadeRuas/{rua.Id}.csv");
                 }
+                #endregion VelocidadeMediaPorRua
+                Console.WriteLine("Logs Gerais salvos");
+            }
+
+            // salva logs semaforos
+            if (!string.IsNullOrEmpty(PastaLogsSemaforos))
+            {
+                verificaPasta(PastaLogsSemaforos);
+                Console.WriteLine("Salvando logs semáforos");
+                foreach(var semaforo in Semaforos)
+                {
+                    var logs = new List<string>();
+                    logs.Add("Instante de tempo; tempo aberto (s); tempo fechado(2)");
+                    foreach (var item in semaforo.LogSemaforos)
+                    {
+                        logs.Add($"{item.InstanteTempo};{item.TempoAberto};{item.TempoFechado}");
+                    }
+                    SalvaLog(logs, $"{PastaLogsSemaforos}/{semaforo.Id}.csv");
+                }
+                Console.WriteLine("Logs semáforos salvos");
+            }
+            // salva logs LogsEstradas
+            if (!string.IsNullOrEmpty(PastaLogEstradas))
+            {
+                verificaPasta(PastaLogEstradas);
+                Console.WriteLine("Iniciando geração de log de estradas");
+                for (int i = 0; i < grafo.NumeroArestas; i++)
+                {
+                    List<string> LogSalvar = new List<string>();
+                    List<LogOcupacaoVias> salvarAresta = LogOcupacaoVias.Where((x => x.IdAresta == i)).ToList();
+                    LogSalvar.Add("Instante de tempo; Espaco Ocupado; Quantidade de veículos");
+                    foreach (var item in salvarAresta)
+                    {
+                        LogSalvar.Add($"{item.InstanteTempo};{item.EspacoOcupado};{item.QuantidadadeVeiculos}");
+                    }
+                    SalvaLog(LogSalvar, $"{PastaLogEstradas}/{i}.csv");
+                }
+                Console.WriteLine("Logs de estradas salvos");
+            }
+            if (!string.IsNullOrEmpty(PastaLogsVertices))
+            {
+                verificaPasta(PastaLogsVertices);
+                Console.WriteLine("Iniciando geração de logs dos vertices");
+                for(int i = 0; i<grafo.NumeroVertices; i++)
+                {
+                    List<string> logs = new List<string>();
+                    logs.Add("Instante tempo;Quantidade de veiculos;Espaco ocupado");
+                    LogQtdVeiculosEsperaTempo.Where(x => x.Vertice == i).ToList().ForEach(x =>
+                    {
+                        logs.Add($"{x.InstanteTempo};{x.QtdVeiculos};{x.EspacoOcupado}");
+                    });
+                    SalvaLog(logs,$"{PastaLogsVertices}/{i}.csv");
+                }
+                Console.WriteLine("Logs de vertices salvos");
             }
         }
 
@@ -194,12 +310,6 @@ namespace Simulador
             }
         }
 
-        private void ExecutaAgAtualizaSemaforos()
-        {
-            #region ExecutaAg
-            #endregion ExecutaAg
-        }
-
         #region MetodosPrivados
         private void GeradoraVeiculos()
         {
@@ -213,6 +323,7 @@ namespace Simulador
                 {
                     // gera veiculo e inicializa log de veiculos
                     Veiculo veiculoAdicionar = geradorVeiculos.GeraVeiculoAleatorio(IdVeiculo, grafo, i);
+
                     veiculoAdicionar.LogVeiculo = new LogVeiculo()
                     {
                         IdVeiculo = veiculoAdicionar.Id,
@@ -220,11 +331,12 @@ namespace Simulador
                         VerticeOrigem = i,
                         VerticeDestino = veiculoAdicionar.PercursoVeiculo.Last()
                     };
+                    // veiculo no vertice aguardando para começar a trafegar
                     VeiculosEsperaVertice[i].Enqueue(veiculoAdicionar);
-                    if (ImprimirLogTela)
-                        Console.WriteLine($"Realizado inserção de veículo no vértice {i}.");
 
                     #region TratativaLogs
+                    if (ImprimirLogTela)
+                        Console.WriteLine($"Realizado inserção de veículo no vértice {i}.");
                     LogGeracaoVeiculos.Add(new LogGeracaoVeiculo()
                     {
                         VerticeIncersao = i,
@@ -237,18 +349,23 @@ namespace Simulador
                         PercursoVeiculo = veiculoAdicionar.PercursoVeiculo
                     });
                     #endregion TratativaLogs
+
+                    //adiciona na coleção de veículos
                     VeiculosSimulacao.Add(veiculoAdicionar);
                     IdVeiculo++;
                 }
             }
             #region TratativaLogs
+
             for (int i = 0; i < n; i++)
             {
                 LogQtdVeiculosEsperaTempo.Add(
                     new LogQtdVeiculosEsperaVertice()
                     {
                         InstanteTempo = SegundoSimulacao,
-                        QtdVeiculos = VeiculosEsperaVertice[i].Count
+                        QtdVeiculos = VeiculosEsperaVertice[i].Count,
+                        Vertice = i,
+                        EspacoOcupado = VeiculosEsperaVertice[i].Sum(x=>x.Comprimento)
                     });
             }
             #endregion TrativaLogs
@@ -273,11 +390,12 @@ namespace Simulador
                     }
                 }
                 #region TrativaLogs
-                LogOcupacaoVias.Add(new LogOcupacaoVias()
+                LogOcupacaoVias.Add(new LogOcupacaoVias
                 {
                     IdAresta = rua.IdAresta,
                     EspacoOcupado = (int)rua.MediaOcupacaoVias(),
-                    InstanteTempo = SegundoSimulacao
+                    InstanteTempo = SegundoSimulacao,
+                    QuantidadadeVeiculos = rua.NumeroVeiculosNaVia
                 });
                 #endregion TrativaLogs
                 // trata veiculos já na via
@@ -290,7 +408,7 @@ namespace Simulador
         {
             foreach (Rua rua in RuasSimulacao)
             {
-                rua.PocessaFilaVeiculos(SegundoSimulacao, PastaLogVeiculos, Semaforos, MargemErroViaLotada);
+                rua.PocessaFilaVeiculos(SegundoSimulacao, Semaforos, MargemErroViaLotada);
             }
         }
 
@@ -307,10 +425,15 @@ namespace Simulador
             }
             foreach (var at in Semaforos)
             {
-                at.AtualizaStatusSemaforo(1);
+                at.AtualizaStatusSemaforo(1, SegundoSimulacao);
             }
         }
 
+        /// <summary>
+        /// remove os veículos da rua quando já estão no final da rua.
+        /// se for final do trajeto finaliza percurso
+        /// se tiver mais percurso coloca na proxima rua
+        /// </summary>
         private void TrocaVeiculosRua()
         {
             foreach (var rua in RuasSimulacao)
@@ -346,7 +469,15 @@ namespace Simulador
                                         {
                                             rua.RemoveVeiculo();
                                         }
+                                        // o veículo precisa trocar de rua mas a proxima rua não tem espaço suficiente
+                                        else
+                                        {
+                                            //veiculo permanece onde está
+                                        }
                                     }
+                                }// fim percurso do veículo
+                                else{
+                                    rua.RemoveVeiculo(); // veiculo removido da simulação, chegou ao destino
                                 }
                             }
                         }
@@ -440,24 +571,6 @@ namespace Simulador
                 file.Write(string.Join("\n", LogSalvar));
                 file.Close();
             }
-        }
-        public void SalvarLogEspacoOcupadoVias(string caminhoPastaVia)
-        {
-            for (int i = 0; i < grafo.NumeroArestas; i++)
-            {
-                List<string> LogSalvar = new List<string>();
-                List<LogOcupacaoVias> salvarAresta = LogOcupacaoVias.Where((x => x.IdAresta == i)).ToList();
-                foreach (var item in salvarAresta)
-                {
-                    LogSalvar.Add($"{item.InstanteTempo};{item.EspacoOcupado}");
-                }
-                using (StreamWriter file = new StreamWriter($"{caminhoPastaVia}/{i}.csv"))
-                {
-                    file.Write(string.Join("\n", LogSalvar));
-                    file.Close();
-                }
-            }
-
         }
         #endregion SalvarLogs
     }
