@@ -17,6 +17,8 @@ namespace TesteSimulacao.AuxAG
         public List<Semaforo> Semaforos { get; set; } = null;
         public List<Rua> Ruas { get; set; } = null;
 
+        int minValue = 30;
+        int maxValue = 120;
         public List<semaforoTemporario> ConverteCromossomoParaSemaforo(List<string> Cromossomo)
         {
             var retorno = new List<semaforoTemporario>();
@@ -52,8 +54,22 @@ namespace TesteSimulacao.AuxAG
             if (fator2 < 0)
                 fator2 *= -1;
             fator2 = fator2 - proximaConfiguracao.aberto;
-            return fator1 - fator2;
+            var retorno = fator1 - fator2;
+            if(retorno < 0)
+            {
+                retorno = 0;
+            }
+            if(configuracao.aberto <= maxValue && configuracao.fechado >= minValue)
+            {
+                retorno += 30;
+            }
+            else
+            {
+                retorno = 0;
+            }
+            return retorno;
         }
+
         public override float CalculatesEvaluation(Chromosome<string> chromosome)
         {
             if (Param1 == null || Param2 == null )

@@ -121,6 +121,7 @@ namespace Simulador
             inicializaFilaEsperaVerice();
             while (SegundoSimulacao < QtdIteracoes)
             {
+                Console.WriteLine($"-> No Instante {SegundoSimulacao}");
                 GeradoraVeiculos();
                 ProcessaVeiculoSimulacao();
                 ProcessaSemaforos();
@@ -455,6 +456,10 @@ namespace Simulador
                     pat += qtdgene;
                     Semaforos[i].ProximoTempoAberto = Convert.ToInt32(sm.ToString().Substring(0, qtdgene / 2), 2);
                     Semaforos[i].ProximoTempoFechado = Convert.ToInt32(sm.ToString().Substring(qtdgene / 2), 2);
+                    if (Semaforos[i].ProximoTempoAberto < 30)
+                        Semaforos[i].ProximoTempoAberto = 30;
+                    if (Semaforos[i].ProximoTempoFechado < 30)
+                        Semaforos[i].ProximoTempoFechado = 30;
                 }
 
             }
