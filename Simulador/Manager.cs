@@ -443,6 +443,20 @@ namespace Simulador
                 var melhorSolucao = SetOtimizacaoIAAG.GetBestChromosome();
                 if (ImprimeLogOtimizacao)
                     Console.WriteLine(JsonConvert.SerializeObject(melhorSolucao));
+                int qtdgene = melhorSolucao.Genes.Count / Semaforos.Count;
+                int pat = 0;
+                for (int i = 0; i<Semaforos.Count; i++)
+                {
+                    StringBuilder sm = new StringBuilder();
+                    for (int j = 0; j < qtdgene; j++)
+                    {
+                        sm.Append(melhorSolucao.Genes[pat + j]);
+                    }
+                    pat += qtdgene;
+                    Semaforos[i].ProximoTempoAberto = Convert.ToInt32(sm.ToString().Substring(0, qtdgene / 2), 2);
+                    Semaforos[i].ProximoTempoFechado = Convert.ToInt32(sm.ToString().Substring(qtdgene / 2), 2);
+                }
+
             }
             foreach (var at in Semaforos)
             {
