@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Simulador
 {
@@ -291,23 +292,41 @@ namespace Simulador
         public bool ImprimeLogOtimizacao { get; set; }
         #endregion Metodos
 
-        private void CriaPopulacaoInicial(GeneticAlgorithm<string> AG, int numeroIndividuos, int numeroGenesIndividos)
+        private List<Chromosome<string>> CriaPopulacaoInicial(int numeroIndividuos)
         {
-            List<Chromosome<int>> populacaoinicial = new List<Chromosome<int>>();
+            int ValorMinimo = 30;
+            int valorMaximo = 120;
+            int numeroGenesCromossomo = 14;// cada tempo tem o valor mázimo de 127 (7 bits)
+            List<Chromosome<string>> populacaoinicial = new List<Chromosome<string>>();
             Random rand = new Random();
             for (int i = 0; i < numeroIndividuos; i++)
             {
-                var novo = new Chromosome<int>(numeroGenesIndividos);
-                for (int j = 0; j < numeroGenesIndividos; j++)
+                var novo = new Chromosome<string>(numeroGenesCromossomo*Semaforos.Count);
+                StringBuilder strcromossomo = new StringBuilder();
+                for (int j = 0; j<Semaforos.Count(); j++)
                 {
-                    int gene = rand.Next() % numeroGenesIndividos;
-                    if (novo.Genes != null)
-                        while (novo.Genes.Contains(gene))
-                            gene = rand.Next() % numeroGenesIndividos;
-                    novo.AddGene(gene);
+                    int tempoaberto = 0;
+                    int tempofechado = 0;
+                    while (tempoaberto < ValorMinimo)
+                        tempoaberto = rand.Next() % valorMaximo;
+                    while (tempofechado < ValorMinimo)
+                        tempofechado = rand.Next() % valorMaximo;
+                    string cromossomo = $"{Convert.ToString(tempoaberto, 2)}{Convert.ToString(tempofechado, 2)}";
+                    while (cromossomo.Count() < numeroGenesCromossomo)
+                    {
+                        if(rand.Next()%2 == 0)
+                            cromossomo = cromossomo.Insert(0, "0");
+                        else
+                            cromossomo = cromossomo.Insert(1, "1");
+                    }
+                    strcromossomo.Append(cromossomo);
                 }
+                var str = strcromossomo.ToString();
+                for (int j = 0; j < str.Length; j++)
+                    novo.AddGene(str[j].ToString());
                 populacaoinicial.Add(novo);
             }
+            return populacaoinicial;
         }
 
         #region MetodosPrivados
@@ -416,9 +435,11 @@ namespace Simulador
         {
             if(SetOtimizacaoIAAG != null)
             {
+                var populacaoInicial = CriaPopulacaoInicial(500);
+                SetOtimizacaoIAAG.DefineInitialPopulation(500, 14 * Semaforos.Count, populacaoInicial);
                 if (ImprimeLogOtimizacao)
                     Console.WriteLine("Iniciando otimização");
-                SetOtimizacaoIAAG.Run();
+                SetOtimizacaoIAAG.Run(Semaforos, RuasSimulacao);
                 var melhorSolucao = SetOtimizacaoIAAG.GetBestChromosome();
                 if (ImprimeLogOtimizacao)
                     Console.WriteLine(JsonConvert.SerializeObject(melhorSolucao));

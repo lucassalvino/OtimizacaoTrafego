@@ -12,9 +12,9 @@ namespace TesteSimulacao
 
             try
             {
-                int numeroGeracoes = 4000;
+                int numeroGeracoes = 200;
                 Manager Simulacao = new Manager();
-                //Simulacao.SetOtimizacaoIAAG = new GeneticAlgorithm<string>(numeroGeracoes, new AvaliacaoCromossomo());
+                Simulacao.SetOtimizacaoIAAG = new GeneticAlgorithm<string>(numeroGeracoes, new AvaliacaoCromossomo());
                 Simulacao.CarregaMapaSimulacao("C:/entrada/Mapa.json");
 
                 Simulacao.PastaLogEstradas = "C:/entrada/LogsEstradas";

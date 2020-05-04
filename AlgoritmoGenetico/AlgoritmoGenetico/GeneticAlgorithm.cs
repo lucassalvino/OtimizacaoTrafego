@@ -18,6 +18,14 @@ namespace GeneticAlgorithm
         public List<Generation<GeneType>> Population { get; set; } = null;
         public int NumberOfGenerations { get; set; }
         private BaseEvaluation<GeneType> Evaluation = null;
+        public void UpdateEvaluation(BaseEvaluation<GeneType> newEvaluation)
+        {
+            if(newEvaluation != null)
+            {
+                Evaluation = newEvaluation;
+            }
+            throw new Exception("the new assessment cannot be null");
+        }
         public void DefineInitialPopulation(int numberOfIndividuals, int numberOfGenesOfIndividuals, List<Chromosome<GeneType>> PopulationInitial)
         {
             if (numberOfIndividuals <= 0)
@@ -32,12 +40,17 @@ namespace GeneticAlgorithm
             PopulationInitial.ForEach(x => p.AddIndividualChromosome(x));
             Population = new List<Generation<GeneType>> { p };
         }
-        public void Run()
+        public void Run(object param1 = null, object param2 = null, object param3 = null, object param4 = null, object param5 = null)
         {
             if (Population == null || Population.Count <= 0)
                 throw new Exception("the initial population has not been defined");
             if (NumberOfGenerations <= 0)
                 throw new Exception("the number of the generations must be greater than zero");
+            Evaluation.Param1 = param1;
+            Evaluation.Param2 = param2;
+            Evaluation.Param3 = param3;
+            Evaluation.Param4 = param4;
+            Evaluation.Param5 = param5;
             for (int i = 0; i < NumberOfGenerations; i++)
                 Population.Add(Population.Last().GenerateNextGeneration(Evaluation));
         }

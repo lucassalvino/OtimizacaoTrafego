@@ -59,6 +59,10 @@ namespace GeneticAlgorithm
         private Guid GetIdOfChromosomeRoulette()
         {
             double SumFitness = Individuals.Select(x => x.Fitness).Sum();
+            if(SumFitness == 0)
+            {
+                return Individuals[Random.Next() % Individuals.Count].Id;
+            }
             int random = Random.Next() % (int)SumFitness;
             if (random <= 0)
                 random = 1;
