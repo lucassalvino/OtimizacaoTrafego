@@ -27,6 +27,10 @@ namespace Simulador.Entidades
         /// <summary>
         /// percurso que o veiculo está desempenhando
         /// </summary>
+        public int SegundoEntrada { get; set; }
+        /// <summary>
+        /// Segundo de entrada na simulação no qual o veículo deverá inserido na via!
+        /// </summary>
         public List<int> PercursoVeiculo { get; set; } = new List<int>();
         /// <summary>
         /// Registros de eventos do veiculo
@@ -43,6 +47,10 @@ namespace Simulador.Entidades
         {
             InicializaVeiculo(comprimento, velocidade, id);
         }
+        public Veiculo(int id, int comprimento, int velocidade, int segundoEntrada)
+        {
+            InicializaVeiculo(comprimento, velocidade, segundoEntrada, id);
+        }
         #endregion Construtores
 
         #region Metodos
@@ -50,7 +58,14 @@ namespace Simulador.Entidades
         {
             Comprimento = comprimento;
             Velocidade = velocidade;
-            id = Id;
+            Id = id;
+        }
+        public void InicializaVeiculo(int comprimento, int velocidade, int segundoEntrada, int id = -1)
+        {
+            Comprimento = comprimento;
+            Velocidade = velocidade;
+            Id = id;
+            SegundoEntrada = segundoEntrada;
         }
         /// <summary>
         /// retonar lista de id dos vertices do percuso do veiculo atual

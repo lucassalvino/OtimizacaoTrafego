@@ -108,7 +108,14 @@ namespace Simulador
             // taxa de geracao veiculos
             TaxaGeracao.AddRange(DadosEntrada.TaxasGeracao.OrderBy((x) => x.Vertice).Select((x) => x.Taxa));
             if (TaxaGeracao.Count != grafo.NumeroVertices)
-                throw new Exception("Quantidade de taxas de geração está inclopeta");
+                throw new Exception("Quantidade de taxas de geração está incompleta!");
+
+            // Inicializar a as listas de geração aqui!
+            // Parametros: Taxa de Geração de veículos, e QtdDeIterações (Duração da Simulação)
+            foreach (var veiculosPorHora in TaxaGeracao)
+            {
+                ListaDeTempoEntradaVeiculosVertices.Add(GeradorSegundoEntrada.GeraSegundoEntradaVeiculo(veiculosPorHora, QtdIteracoes));
+            }
             #endregion ProcessaEntrada
         }
 
@@ -335,10 +342,13 @@ namespace Simulador
             if (ImprimirLogTela)
                 Console.WriteLine("Iniciando rotina de geração de veículos");
             int n = grafo.NumeroVertices;
+            int idx;
             for (int i = 0; i < n; i++)
             {
-                //se a taxa de geração da rotina do vertice atual
-                if (RoletaSorteio.ExecutaRoleta(TaxaGeracao[i]))
+                idx = -1;
+                var segundoVertice = ListaDeTempoEntradaVeiculosVertices[i];
+                idx = segundoVertice.LastIndexOf(SegundoSimulacao);
+                if(idx != -1)
                 {
                     // gera veiculo e inicializa log de veiculos
                     Veiculo veiculoAdicionar = geradorVeiculos.GeraVeiculoAleatorio(IdVeiculo, grafo, i);
@@ -374,6 +384,7 @@ namespace Simulador
                     IdVeiculo++;
                 }
             }
+
             #region TratativaLogs
 
             for (int i = 0; i < n; i++)
@@ -535,6 +546,7 @@ namespace Simulador
         private List<Queue<Veiculo>> VeiculosEsperaVertice { get; set; } = new List<Queue<Veiculo>>();
         private Grafo grafo = new Grafo();
         private List<int> TaxaGeracao = new List<int>();
+        public List<List<int>> ListaDeTempoEntradaVeiculosVertices = new List<List<int>>();
         private GeradorVeiculos geradorVeiculos = new GeradorVeiculos();
         private int SegundoSimulacao = 0;
         private int IdVeiculo = 0;

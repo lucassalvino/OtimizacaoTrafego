@@ -14,19 +14,20 @@ namespace TesteSimulacao
             {
                 int numeroGeracoes = 200;
                 Manager Simulacao = new Manager();
-                Simulacao.SetOtimizacaoIAAG = new GeneticAlgorithm<string>(numeroGeracoes, new AvaliacaoCromossomo());
-                Simulacao.CarregaMapaSimulacao("C:/entrada/Mapa.json");
-
-                Simulacao.PastaLogEstradas = "C:/entrada/LogsEstradas";
-                Simulacao.PastaLogsSemaforos = "C:/entrada/LogsSemaforos";
-                Simulacao.PastaLogVeiculos = "C:/entrada/LogsVeiculos";
-                Simulacao.PastaLogsVertices = "C:/entrada/LogsVertices";
-                Simulacao.PastaLogsGerais = "C:/entrada/Gerais";
-
-                Simulacao.QtdIteracoes = 1200;
+                Simulacao.QtdIteracoes = 3600;
                 Simulacao.ImprimirLogTela = true;
                 Simulacao.ImprimeLogOtimizacao = true;
+                Simulacao.PastaLogEstradas = "D:/entrada/LogsEstradas";
+                Simulacao.PastaLogsSemaforos = "D:/entrada/LogsSemaforos";
+                Simulacao.PastaLogVeiculos = "D:/entrada/LogsVeiculos";
+                Simulacao.PastaLogsVertices = "D:/entrada/LogsVertices";
+                Simulacao.PastaLogsGerais = "D:/entrada/Gerais";
+
+                //Simulacao.SetOtimizacaoIAAG = new GeneticAlgorithm<string>(numeroGeracoes, new AvaliacaoCromossomo());
+                Simulacao.CarregaMapaSimulacao("D:/entrada/Mapa.json");
+                
                 Simulacao.IniciaSimulacao();
+
                 Simulacao.SalvaLogs();
             }
             catch(Exception erro)
