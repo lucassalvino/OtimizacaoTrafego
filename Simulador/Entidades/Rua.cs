@@ -12,10 +12,11 @@ namespace Simulador.Entidades
         public int NumeroFaixas { get; set; }
         public int IdAresta { get; set; }
         public int VelocidadeMaxima { get; set; }
+        public int CapacidadeMaxima { get; set; }
+        public int VeiulosPorMinuto { get; set; }
         public List<int> EspacoOcupado { get; set; } = new List<int>();
         public List<Queue<Veiculo>> VeiculosNaRua { get; set; } = new List<Queue<Veiculo>>();
         public List<LogMediaVelocidade> MediaVelocidadesPorInstante { get; set; } = new List<LogMediaVelocidade>();
-
         public int NumeroVeiculosNaVia 
         {
             get
@@ -25,6 +26,7 @@ namespace Simulador.Entidades
                 return retorno;
             }
         }
+
         #endregion Propriedades
 
         #region Construtores
@@ -80,6 +82,7 @@ namespace Simulador.Entidades
             }
             return null;
         }
+        
         #region Metodos
         public void PocessaFilaVeiculos(int SegundoSimalcao, List<Semaforo> Semaforos, int margemErroViaLotada = 2)
         {

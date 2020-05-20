@@ -20,6 +20,7 @@ namespace Simulador
         public string PastaLogsSemaforos { get; set; }
         public string PastaLogsVertices { get; set; }
         public string PastaLogsGerais { get; set; }
+        public string PastaCruzamento { get; set; }
         public GeneticAlgorithm<string> SetOtimizacaoIAAG { get; set; }
 
         #region Metodos
@@ -118,7 +119,6 @@ namespace Simulador
             }
             #endregion ProcessaEntrada
         }
-
         public void IniciaSimulacao()
         {
             SegundoSimulacao = 0;
@@ -142,7 +142,6 @@ namespace Simulador
                 file.Close();
             }
         }
-
         private void verificaPasta(string pasta)
         {
             if (!Directory.Exists(pasta))
@@ -284,26 +283,24 @@ namespace Simulador
                 Console.WriteLine("Logs de vertices salvos");
             }
         }
-
         public Grafo GetGrafoSimulacao()
         {
             return grafo;
         }
-
         public Rua GetRua(int origem, int destino)
         {
             return RuasSimulacao.Where((x) => x.IdAresta == grafo.ObtenhaAresta(origem, destino)?.Id).FirstOrDefault();
         }
-
         public bool ImprimirLogTela { get; set; }
         public bool ImprimeLogOtimizacao { get; set; }
+        
         #endregion Metodos
 
         private List<Chromosome<string>> CriaPopulacaoInicial(int numeroIndividuos)
         {
             int ValorMinimo = 30;
             int valorMaximo = 120;
-            int numeroGenesCromossomo = 14;// cada tempo tem o valor mázimo de 127 (7 bits)
+            int numeroGenesCromossomo = 14;// cada tempo tem o valor máximo de 127 (7 bits)
             List<Chromosome<string>> populacaoinicial = new List<Chromosome<string>>();
             Random rand = new Random();
             for (int i = 0; i < numeroIndividuos; i++)
@@ -400,7 +397,6 @@ namespace Simulador
             }
             #endregion TrativaLogs
         }
-
         private void ProcessaVeiculoSimulacao()
         {
             if (ImprimirLogTela)
@@ -433,7 +429,6 @@ namespace Simulador
             ProcessaVeiculosVias();
             TrocaVeiculosRua();
         }
-
         private void ProcessaVeiculosVias()
         {
             foreach (Rua rua in RuasSimulacao)
@@ -441,7 +436,6 @@ namespace Simulador
                 rua.PocessaFilaVeiculos(SegundoSimulacao, Semaforos, MargemErroViaLotada);
             }
         }
-
         private void ProcessaSemaforos()
         {
             if(SetOtimizacaoIAAG != null)

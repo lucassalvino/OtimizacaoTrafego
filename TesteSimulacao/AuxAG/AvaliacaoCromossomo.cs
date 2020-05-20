@@ -11,6 +11,7 @@ namespace TesteSimulacao.AuxAG
     {
         public int aberto;
         public int fechado;
+        public int estado;
     }
     public class AvaliacaoCromossomo: BaseEvaluation<string>
     {
@@ -39,6 +40,11 @@ namespace TesteSimulacao.AuxAG
             }
             return retorno;
         }
+        /*
+         * Obter a capacidade máxima
+         * Obter o fluxo atual na via
+         * Calcular o fator do cromossomo.
+         */
         public float FatorCromossomo(int index, semaforoTemporario configuracao, semaforoTemporario proximaConfiguracao)
         {
             var ruasEntrada = Semaforos[index].RuasOrigem;
