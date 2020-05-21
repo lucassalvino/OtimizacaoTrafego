@@ -59,7 +59,9 @@ namespace TesteSimulacao.AuxAG
                 fator2 *= -1;
             fator2 = fator2 - proximaConfiguracao.aberto;
             return fator1 - fator2;
+            
         }
+
         public override float CalculatesEvaluation(Chromosome<string> chromosome)
         {
             if (Param1 == null || Param2 == null )

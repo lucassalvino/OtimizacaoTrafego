@@ -14,7 +14,9 @@ namespace TesteSimulacao
             {
                 int numeroGeracoes = 200;
                 Manager Simulacao = new Manager();
-                Simulacao.QtdIteracoes = 3600;
+
+                Simulacao.QtdIteracoes = 1800;
+                
                 Simulacao.ImprimirLogTela = true;
                 Simulacao.ImprimeLogOtimizacao = true;
                 Simulacao.PastaLogEstradas = "D:/entrada/LogsEstradas";

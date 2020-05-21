@@ -441,13 +441,14 @@ namespace Simulador
             if(SetOtimizacaoIAAG != null)
             {
                 var populacaoInicial = CriaPopulacaoInicial(500);
-                SetOtimizacaoIAAG.DefineInitialPopulation(500, 14 * Semaforos.Count, populacaoInicial);
+                SetOtimizacaoIAAG.DefineInitialPopulation(500, 7 * Semaforos.Count, populacaoInicial);
                 if (ImprimeLogOtimizacao)
                     Console.WriteLine("Iniciando otimização");
                 SetOtimizacaoIAAG.Run(Semaforos, RuasSimulacao);
                 var melhorSolucao = SetOtimizacaoIAAG.GetBestChromosome();
                 if (ImprimeLogOtimizacao)
                     Console.WriteLine(JsonConvert.SerializeObject(melhorSolucao));
+                // Configurar o tempo aberto e fechado do semáforo aqui!
             }
             foreach (var at in Semaforos)
             {
