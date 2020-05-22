@@ -52,8 +52,11 @@ namespace Simulador
                     NumeroFaixas = item.NumeroVias,
                     IdAresta = aresta.Id,
                     VelocidadeMaxima = item.VelocidadeMaxima,
+                    CapacidadeMaxima = item.CapacidadeMaxima,
                     Id = auxId++,
                     Descricao = $"Rua sentido {aresta.Origem} até {aresta.Destino}",
+                    VeiculosTrocaramDeCruzamento = 0,
+                    VeiculosPorHora = 0,
                 };
                 ruaAdicionar.PreparaRua();
                 RuasSimulacao.Add(ruaAdicionar);
@@ -85,9 +88,11 @@ namespace Simulador
                     TempoAberto = item.TempoAberto,
                     TempoAmarelo = item.TempoAmarelo,
                     TempoFechado = item.TempoFechado,
-                    EstadoSemaforo = Entidades.Enuns.EstadosSemaforo.ABERTO,
+                    //EstadoSemaforo = Entidades.Enuns.EstadosSemaforo.ABERTO,
+                    EstadoSemaforo = item.EstadoSemaforo,
                     ProximoTempoAberto = item.TempoAberto,
                     ProximoTempoFechado = item.TempoFechado,
+                    CicloTempo = item.CicloTempo,
                     TempoAtual = 0
                 };
                 auxSema.LogSemaforos.Add(new LogSemaforos { 
@@ -428,6 +433,7 @@ namespace Simulador
             }
             ProcessaVeiculosVias();
             TrocaVeiculosRua();
+            calculaVeiculosPorHora();
         }
         private void ProcessaVeiculosVias()
         {
@@ -467,12 +473,14 @@ namespace Simulador
             {
                 var sema = Semaforos.Where(x => x.RuasOrigem.Contains(rua.Id)).FirstOrDefault();
                 bool temSem = sema != null;
+
                 for (int i = 0; i < rua.NumeroFaixas; i++)
                 {
                     var veiculos = rua.VeiculosNaRua[i].ToList();
                     foreach (var veiculo in veiculos)
                     {
-                        if ((rua.EspacoOcupado[i] + MargemErroViaLotada) >= rua.Comprimento)
+                        //if ((rua.EspacoOcupado[i] + MargemErroViaLotada) >= rua.Comprimento)
+                        if(veiculo.PosicaoAtualNaVia >= rua.Comprimento)
                         {
                             bool removeVeiculo = true;
                             if (temSem && sema.EstadoSemaforo != Entidades.Enuns.EstadosSemaforo.ABERTO)
@@ -486,15 +494,23 @@ namespace Simulador
                                 int verticeOrigemProximaRua = arestaRuaAt.Destino;
                                 veiculo.VerticeAtual = veiculo.ProximoDestinoVeiculo();
                                 int verticeDestinoProximaRua = veiculo.ProximoDestinoVeiculo();
-                                var procimaAresta = grafo.ObtenhaAresta(verticeOrigemProximaRua, verticeDestinoProximaRua);
-                                if (procimaAresta is object)
+                                var proximaAresta = grafo.ObtenhaAresta(verticeOrigemProximaRua, verticeDestinoProximaRua);
+                                if (proximaAresta is object)
                                 {
-                                    var prua = RuasSimulacao.Where(x => x.IdAresta == procimaAresta.Id).FirstOrDefault();
+                                    var prua = RuasSimulacao.Where(x => x.IdAresta == proximaAresta.Id).FirstOrDefault();
+
                                     if (prua is object)
-                                    {
+                                    {                                       
                                         if (prua.AdicionaVeiculo(veiculo, SegundoSimulacao))
                                         {
                                             rua.RemoveVeiculo();
+                                            var tmp = Semaforos.Where(x => x.RuasOrigem.Contains(rua.Id)).FirstOrDefault();
+                                            var tmp2 = Semaforos.Where(x => x.RuasDestino.Contains(proximaAresta.Id)).FirstOrDefault();
+
+                                            if (temSem && tmp.Equals(tmp2))
+                                            {
+                                                rua.VeiculosTrocaramDeCruzamento += 1;
+                                            }
                                         }
                                         // o veículo precisa trocar de rua mas a proxima rua não tem espaço suficiente
                                         else
@@ -512,7 +528,6 @@ namespace Simulador
                 }
             }
         }
-
         private bool VerificaCarregamentoDados()
         {
             if (grafo == null || grafo.NumeroVertices == 0 || grafo.NumeroArestas == 0) return false;
@@ -530,6 +545,29 @@ namespace Simulador
                 VeiculosEsperaVertice.Clear();
                 for (int i = 0; i < grafo.NumeroVertices; i++)
                     VeiculosEsperaVertice.Add(new Queue<Veiculo>());
+            }
+        }
+        public void calculaVeiculosPorHora()
+        {
+            double veiculosPorHora;
+            if(SegundoSimulacao != 0 && SegundoSimulacao%600 == 0)
+            {
+                foreach (var rua in RuasSimulacao)
+                {
+                    veiculosPorHora = 0;
+                    veiculosPorHora = ((double)rua.VeiculosTrocaramDeCruzamento / ((600.0/60.0)/60.0));
+                    rua.VeiculosPorHora = (int)veiculosPorHora;
+                    rua.VeiculosTrocaramDeCruzamento = 0;
+                }
+            }else if (SegundoSimulacao+1 == QtdIteracoes)
+            {
+                foreach(var rua in RuasSimulacao)
+                {
+                    if(rua.VeiculosPorHora != 0)
+                    {
+                        Console.WriteLine("{0}", rua.VeiculosPorHora);
+                    }
+                }
             }
         }
         #endregion MetodosPrivados

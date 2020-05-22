@@ -7,5 +7,6 @@
         public int Distancia { get; set; }
         public int NumeroVias { get; set; }
         public int VelocidadeMaxima { get; set; }
+        public int CapacidadeMaxima { get; set; }
     }
 }

@@ -13,7 +13,8 @@ namespace Simulador.Entidades
         public int IdAresta { get; set; }
         public int VelocidadeMaxima { get; set; }
         public int CapacidadeMaxima { get; set; }
-        public int VeiulosPorMinuto { get; set; }
+        public int VeiculosPorHora { get; set; }
+        public int VeiculosTrocaramDeCruzamento { get; set; }
         public List<int> EspacoOcupado { get; set; } = new List<int>();
         public List<Queue<Veiculo>> VeiculosNaRua { get; set; } = new List<Queue<Veiculo>>();
         public List<LogMediaVelocidade> MediaVelocidadesPorInstante { get; set; } = new List<LogMediaVelocidade>();
@@ -55,7 +56,7 @@ namespace Simulador.Entidades
                 throw new Exception("Veiculo não foi setado");
             for (int i = 0; i < NumeroFaixas; i++)
             {
-                if (Comprimento >= (EspacoOcupado[i] + novoVeiculo.Comprimento))
+                if (Comprimento >= (EspacoOcupado[i] + novoVeiculo.Comprimento + 2))
                 {
                     novoVeiculo.LogVeiculo.VelocidadesTempo.Add(new LogVelocidadeVeiculo()
                     {
@@ -82,7 +83,6 @@ namespace Simulador.Entidades
             }
             return null;
         }
-        
         #region Metodos
         public void PocessaFilaVeiculos(int SegundoSimalcao, List<Semaforo> Semaforos, int margemErroViaLotada = 2)
         {

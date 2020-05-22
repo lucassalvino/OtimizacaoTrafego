@@ -1,4 +1,5 @@
-﻿using Simulador.AuxLogs;
+﻿using Newtonsoft.Json;
+using Simulador.AuxLogs;
 using Simulador.Entidades.Enuns;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,8 @@ namespace Simulador.Entidades
         public int TempoAtual { get; set; } = 0;
         public int ProximoTempoAberto { get; set; }
         public int ProximoTempoFechado { get; set; }
+        public int CicloTempo { get; set; }
+        [JsonConverter(typeof(EstadosSemaforo))]
         public EstadosSemaforo EstadoSemaforo { get; set; }
         public List<int> RuasOrigem { get; set; } = new List<int>();
         public List<int> RuasDestino { get; set; } = new List<int>();

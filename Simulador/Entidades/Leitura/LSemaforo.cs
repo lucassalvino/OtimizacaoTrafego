@@ -1,4 +1,6 @@
-﻿namespace Simulador.Entidades.Leitura
+﻿using Simulador.Entidades.Enuns;
+
+namespace Simulador.Entidades.Leitura
 {
     public class LSemaforo
     {
@@ -9,5 +11,7 @@
         public int TempoAberto { get; set; }
         public int TempoFechado { get; set; }
         public int TempoAmarelo { get; set; }
+        public int CicloTempo { get; set; }
+        public EstadosSemaforo EstadoSemaforo { get; set; }
     }
 }
