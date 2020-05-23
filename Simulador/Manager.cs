@@ -303,9 +303,7 @@ namespace Simulador
 
         private List<Chromosome<string>> CriaPopulacaoInicial(int numeroIndividuos)
         {
-            int ValorMinimo = 30;
-            int valorMaximo = 120;
-            int numeroGenesCromossomo = 14;// cada tempo tem o valor máximo de 127 (7 bits)
+            int numeroGenesCromossomo = 7;// cada tempo tem o valor máximo de 127 (7 bits)
             List<Chromosome<string>> populacaoinicial = new List<Chromosome<string>>();
             Random rand = new Random();
             for (int i = 0; i < numeroIndividuos; i++)
@@ -314,19 +312,13 @@ namespace Simulador
                 StringBuilder strcromossomo = new StringBuilder();
                 for (int j = 0; j<Semaforos.Count(); j++)
                 {
-                    int tempoaberto = 0;
-                    int tempofechado = 0;
-                    while (tempoaberto < ValorMinimo)
-                        tempoaberto = rand.Next() % valorMaximo;
-                    while (tempofechado < ValorMinimo)
-                        tempofechado = rand.Next() % valorMaximo;
-                    string cromossomo = $"{Convert.ToString(tempoaberto, 2)}{Convert.ToString(tempofechado, 2)}";
+                    string cromossomo = "";
                     while (cromossomo.Count() < numeroGenesCromossomo)
                     {
-                        if(rand.Next()%2 == 0)
-                            cromossomo = cromossomo.Insert(0, "0");
+                        if (rand.NextDouble() < 0.5)
+                            cromossomo += "1";
                         else
-                            cromossomo = cromossomo.Insert(1, "1");
+                            cromossomo += "0";
                     }
                     strcromossomo.Append(cromossomo);
                 }
@@ -444,7 +436,7 @@ namespace Simulador
         }
         private void ProcessaSemaforos()
         {
-            if(SetOtimizacaoIAAG != null)
+            if(SetOtimizacaoIAAG != null && (SegundoSimulacao != 0 && SegundoSimulacao%300 == 0))
             {
                 var populacaoInicial = CriaPopulacaoInicial(500);
                 SetOtimizacaoIAAG.DefineInitialPopulation(500, 7 * Semaforos.Count, populacaoInicial);
@@ -452,9 +444,25 @@ namespace Simulador
                     Console.WriteLine("Iniciando otimização");
                 SetOtimizacaoIAAG.Run(Semaforos, RuasSimulacao);
                 var melhorSolucao = SetOtimizacaoIAAG.GetBestChromosome();
+
                 if (ImprimeLogOtimizacao)
+                {
                     Console.WriteLine(JsonConvert.SerializeObject(melhorSolucao));
+                    Console.WriteLine("X1: {0}, X2: {1}", FuncoesAuxiliares.ConvertBooleanToValue(0, 6, melhorSolucao.Genes), FuncoesAuxiliares.ConvertBooleanToValue(7, 13, melhorSolucao.Genes));
+                }
+
                 // Configurar o tempo aberto e fechado do semáforo aqui!
+                var k = 1;
+                int tempoVerde = 0;
+                int tempoVermelho = 0;
+                foreach (var semaforo in Semaforos)
+                {
+                    tempoVerde = FuncoesAuxiliares.ConvertBooleanToValue((k - 1), (k + 5), melhorSolucao.Genes);
+                    tempoVermelho = semaforo.CicloTempo - (tempoVerde + semaforo.TempoAmarelo);
+                    semaforo.ProximoTempoAberto = tempoVerde;
+                    semaforo.ProximoTempoFechado = tempoVermelho;
+                    k+= 7;
+                }
             }
             foreach (var at in Semaforos)
             {
@@ -550,12 +558,12 @@ namespace Simulador
         public void calculaVeiculosPorHora()
         {
             double veiculosPorHora;
-            if(SegundoSimulacao != 0 && SegundoSimulacao%600 == 0)
+            if(SegundoSimulacao != 0 && SegundoSimulacao%300 == 0)
             {
                 foreach (var rua in RuasSimulacao)
                 {
                     veiculosPorHora = 0;
-                    veiculosPorHora = ((double)rua.VeiculosTrocaramDeCruzamento / ((600.0/60.0)/60.0));
+                    veiculosPorHora = ((double)rua.VeiculosTrocaramDeCruzamento / ((300.0/60.0)/60.0));
                     rua.VeiculosPorHora = (int)veiculosPorHora;
                     rua.VeiculosTrocaramDeCruzamento = 0;
                 }

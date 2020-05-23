@@ -12,7 +12,7 @@ namespace TesteSimulacao
 
             try
             {
-                int numeroGeracoes = 200;
+                int numeroGeracoes = 1;
                 Manager Simulacao = new Manager();
 
                 Simulacao.QtdIteracoes = 1800;
@@ -25,7 +25,7 @@ namespace TesteSimulacao
                 Simulacao.PastaLogsVertices = "D:/entrada/LogsVertices";
                 Simulacao.PastaLogsGerais = "D:/entrada/Gerais";
 
-                //Simulacao.SetOtimizacaoIAAG = new GeneticAlgorithm<string>(numeroGeracoes, new AvaliacaoCromossomo());
+                //Simulacao.SetOtimizacaoIAAG = new GeneticAlgorithm<string>(numeroGeracoes, new AvaliacaoCromossomoAtrasoMedio());
                 Simulacao.CarregaMapaSimulacao("D:/entrada/Mapa.json");
                 
                 Simulacao.IniciaSimulacao();
